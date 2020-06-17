@@ -3,18 +3,24 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>Vue 条件渲染</title>
 </head>
 <body>
 	<div id="app">
-		{{message}}
+		<h1>{{msg}}</h1>
+		<!-- 首次是否解析渲染由条件判定，条件改变会引起局部解析渲染(增删DOM同样引起重排/回流)，当用在组件上时会触发生命周期 -->
+		<h5 v-if="cool">vue is cool</h5>
+		<h5 v-else>vue is awesome</h5>
+		<!-- v-show ===> display: none 意味着会引起重排(回流)，无论条件真假首次都会被解析渲染-->
+		<h5 v-show="cool">v-show cool</h5>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 	<script>
 		let app = new Vue({
 			el: '#app',
 			data: {
-				message: 'hello vue!!!'	
+				msg: 'hello vue!!!',
+				cool: true
 			}
 		});
 		console.log(app, 'app');
