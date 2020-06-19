@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <h3>v-for in array</h3>
+        <ul>
+            <li v-for="(num, index) in nums">{{num}}: {{index}}</li>
+        </ul>
+        <br />
+        <h3>v-for of array</h3>
+        <ul>
+            <li v-for="(num, index) of nums">{{num}}: {{index}}</li>
+        </ul>
+        <br />
+        <h3>v-for in object</h3>
+        <ul>
+            <li v-for="(value, key) in student">{{key}}: {{value}}    {{msg}}</li>
+        </ul>
+        <br />
+        <h3>v-for of object</h3>
+        <ul>
+            <li v-for="(value, key) in student">{{key}}: {{value}}    {{msg}}</li>
+        </ul>
+        <p v-html="xss" ref="wrap"></p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script>
+		let app = new Vue({
+			el: '#app',
+			data: {
+				msg: 'hello vue!!!',
+				cool: true,
+                nums: ['apple','bnana','orange','peak'],
+                student: {
+                    name: 'abiha',
+                    age: '18',
+                    school: '蓝翔'
+                },
+                xss: "<h1>XSS</h1>" 
+                // 报错是因为vue内部使用的innerHTML，一旦dom渲染完成浏览器会阻塞script的执行，
+                // 可以利用JSONP，即appendChild的方式
+                
+                
+			},
+            methods: {
+                getScriptInHTML(wrapper){
+                    // script nodeList
+                    const scripts = [...new Set(wrapper.querySelectorAll('script'))];
+                    scripts.reduce((promise, script) => {
+                        return promise.then( _ => this.runScript(script))
+                    }, Promise.resolve())
+                    console.log(scripts)
+                },
+                runScript(script){
+                    // 每次循环返回一个Promise放入任务队列依次执行
+                    return new Promise((resolve, reject) => {
+                        const newScript = document.createElement('script');
+                        const src = script.getAttribute('src');
+                        if(src){
+                            newScript.setAttribute('src') = src;
+                            resolve();
+                        }else{
+                            newScript.innerHtml = script.innerHtml;
+                        }
+                        newScript.onload = _ => resolve();
+                        newScript.onerror = err => reject();
+
+                        document.head.appendChild(newScript)
+                        // document.head.removeChild(newScript)
+
+                    })
+                },
+                createQueue(arr){
+                    let p = Promise.resolve();
+                    arr.map(v => {
+                       p = p.then(res => {
+                            // 每次循环返回一个新的Promise并复制给p    
+                            return new Promise(resolve => {
+                                // 定时器模拟异步过程
+                                setTimeout( _ => {
+                                    console.log(v);
+                                    resolve();
+                                }, 1000)
+                            })
+                        })
+                    })
+                }
+            },
+            beforeCreated(){
+                const { wrap } = this.$refs;
+            }
+		});
+    // vue v-for in 或者 v-for of都能循环遍历数组对象，内部使用的是Object.keys()
+    // vue 列表渲染可以使用当前作用域中的其他data属性，如：本例中使用列表渲染使用了msg
+    // v-for 通常是要和 key 配合使用的并且key值要唯一
+    // key主要用在Vue的虚拟DOM算法
+    // 不指定key时，在新旧nodes对比时会极大亵渎的减少dom更改尽可能的复用现有dom
+    // 指定key时，在新旧nodes对比时会基于key值的变化重新排列并移除key不存在的元素(意味着触发生命周期/过渡)
+
+
+
+
+    // javascript中的迭代方法(以下几种方法都不会遍历symbol属性)
+    // for in 可以遍历数组和对象的属性及原型上的可枚举(enumerable)属性
+    // Array.prototype.getLength = _ => this.length;
+    const arr = [1,2,3];
+    Object.defineProperty(arr, 'test', {
+        enumerable: true,
+        value: 'ceshi'
+    });
+    arr.name = '666';
+    for(let prop in arr){
+        // console.log(prop, 'prop');
+        // 0 1 2 test name getLength
+    }
+    // for of es6新增，可以遍历数组/类数组/字符串/Map/Set的，可迭代
+    for(let item of arr){
+        // console.log(item, 'item');
+        // 1, 2, 3
+    }
+    const obj = {
+        a: 1,
+        b: 2
+    }
+    obj.__proto__.test = 'ceshi';
+    // 普通对象不可迭代 可配合Object.keys
+    try {
+        for(let item of obj){
+            console.log(item, 'item');
+        }    
+    } catch (error) {
+        // Uncaught TypeError: obj is not iterable
+    }
+    for(let item of Object.keys(obj)){
+        console.log(obj[item], 'item'); 
+    }
+    // Object.keys() Object.values() Object.entyies()
+    // 返回一个数组，可以遍历数组/对象/字符串 不会遍历原型上的属性和symbol类型
+    // symbol是es规范中新的原始数据类型，它是由函数Symbol执行得到的(非构造函数不能被new)，特点是独一无二它可以用来作为对象唯一的属性名
+    // Symbol函数可以接受一个字符串参数来描述不同的symbol
+    // 每个symbol都有一个属性description
+    // Symbol.for() Symbol.keyFor() 
+
+    const a = Symbol('a');
+    const b = Symbol('a');
+    a.description === b.description  // true
+
+    // 遍历Symbol属性
+    // Object.getOwnPropertySymbols() 返回symbol属性
+    // Reflect.ownKeys() 返回所有属性(包括常规键名及symbol键名)
+    // 因为symbol键名不会被普通迭代方法遍历出来可以用来做对象非私有属性的内部属性或方法
+    // symbol的读取都必须是[]语法，点语法会被当成字符串
+
+    // 参考阮一峰es6文章 https://es6.ruanyifeng.com/#docs/symbol
+	</script>
+</body>
+</html>
