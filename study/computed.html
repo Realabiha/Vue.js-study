@@ -7,7 +7,12 @@
 </head>
 <body>
     <div id="app">
+        <!-- 计算属性 -->
         <h3>{{fullname}}</h3>
+        <!-- 方法 -->
+        <h3>{{fullname()}}</h3>
+        <span>{{obj.a}}</span>
+        <input type="text" v-model="obj.a">
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script>
@@ -15,14 +20,66 @@
             el: '#app',
             data: {
                 firstname: 'abiha',
-                lastname: 'xiao'
+                lastname: 'xiao',
+                obj: {
+                    a: 1
+                }
+                // fullname: ''
             },
             computed: {
+                // 计算属性的getter
                 fullname(){
                     return this.lastname + this.firstname
                 }
-            }
+            },
+            watch: {
+                firstname(v1, v2){
+                    console.log(v1, v2);
+                },
+                lastname: {
+                    handler(v1, v2){
+                        console.log(v1, v2)
+                    },
+                    // immediate: true,
+                    // deep: true
+                },
+                obj: {
+                    handler(v1, v2){
+                        // 默认值监听修改obj，obj修改会触发回调
+                        // 设置deep后，修改obj.a也会触发回调
+                        console.log(v1, v2)
+                    },
+                    // immediate: true,
+                    deep: true
+                } 
+            },
+            methods: {
+                fullname(){
+                    return this.lastname + this.firstname
+                }
+            },
         })
+
+        // computd 和 watch 原理  https://juejin.im/post/5b87f13bf265da436479f3c1
+
+
+        // computed 是用来处理一些相对简单的插值表达式来说更加复杂的逻辑并且被多处会用到的情况(官方文档上是字符串翻转的例子)
+        // computed 计算属性 和 methods 方法比较
+        // 计算属性是基于他们的响应式依赖进行缓存的(依赖项变了才会重新计算)
+        // 每次触发渲染方法都会重新执行(没有缓存，不希望缓存可用方法替代)
+        // 计算属性和方法的方法名相同时，方法名优先级更高 
+        // typeof app.fullname; "function"
+        // computed 计算属性的getter(默认)/setter
+        // vue实力data中有的属性不能再计算属性中重复定义
+
+        // watch 侦听器用来观察和响应数据的变动，值得注意的是当你的一些数据需要随着其他数据变动时不要滥用watch可以考虑计算属性
+        // watch 通常比较适合在数据变动后执行一些异步操作(这是计算属性无法做到的)
+        // watch 的高级属性handler 监听数据变化后的回调
+        // watch 的高级属性immediate 初始化watch就调用回调(默认false)
+        // watch 的高级属性deep 深度监听(修改对象里层的值也会触发回调)
+
+        // vue 挂载方式
+        // vue data return
     </script>
 </body>
 </html>
