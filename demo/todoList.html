@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO LIST</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="./rem.js"></script>
+</head>
+<style>
+    html, body, ul, li{
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background: #eee;
+        /* overflow-x: hidden; */
+    }
+    li{
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        height: .3rem;
+        list-style-type: none;
+        background: #ddd;
+        margin: .05rem 0;
+        padding: .02rem;
+        box-sizing: border-box;
+        animation: fade .5s ease-in-out;
+    }
+    @keyframes fade {
+        0%{
+            transform: translateX(-100%);
+            transform-origin: center;
+            opacity: 0;
+        }
+        /* 50%{
+            transform: translateX(-100%);
+            transform-origin: center;
+            opacity: 1;
+        } */
+        100%{
+            transform: translateX(0);
+            transform-origin: center;
+            opacity: 1;
+        }
+    }
+    li input{
+        flex: 1;
+    }
+    li span{
+        flex: 4;
+    }
+    li input[type="button"]{
+        border: none;
+        color: #f40;
+        font-size: .14rem;
+    }
+    .done li{
+        color: #aaa;
+        background: springgreen;
+    }
+    .header{
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        height: .5rem;
+        font-size: .2rem;
+        background: #ccc;
+        outline: none;
+    }
+    .header input{
+        outline: none;
+        color: #ccc;
+        border: none;
+    }
+    .content{
+        font-size: .2em;
+        color: #333;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="header">
+            <h5>TODO LIST</h5>
+            <input type="text" v-model="plan" @keyup.enter="createPlan" /> 
+        </div>
+        <div class="content">
+            <h5>DOING</h5>
+            <ul class="doing">
+                <li v-for="item in doing" :key="item.id">
+                    <!-- <div v-if="!item.done"> -->
+                        <input type="checkbox" @change="togglePlan(item.id)" :checked="false">
+                        <span>{{item.plan}}</span>
+                        <input type="button" value="删除" @click="delPlan(item.id)">
+                    <!-- </div> -->
+                </li>
+            </ul>
+            <h5>DONE</h5>
+            <ul class="done">
+                <li v-for="item in done" :key="item.id">
+                    <!-- <div v-if="item.done"> -->
+                        <input type="checkbox" @change.prevent="togglePlan(item.id)" :checked="true">
+                        <span>{{item.plan}}</span>
+                        <input type="button" value="删除" @click="delPlan(item.id)">
+                    <!-- </div> -->
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        let app = new Vue({
+            el: "#app",
+            data: {
+                todo: [],
+                plan: "",
+                flag: false
+            },
+            computed: {
+                doing(){
+                    return this.todo.filter(v => !v.done);
+                },
+                done(){
+                    return this.todo.filter(v => v.done);
+                }
+            },
+            watch: {
+                // todo: {
+                //     handler(v){
+                //         console.log(v);
+                //         this.savePlan();
+                //     },
+                //     deep: true
+                // }
+            },
+            methods: {
+                createPlan(){
+                    if(this.plan.trim() == "") return;
+                    this.todo.push({
+                        plan: this.plan,
+                        done: false,
+                        id: this.todo.length
+                    })
+                    this.plan = "";
+
+                    this.savePlan();
+                },
+                savePlan(){
+                    localStorage.todo = JSON.stringify(this.todo);
+                },
+                togglePlan(id){
+                    if(this.flag) return;
+                    this.falg = true;
+                    this.todo[id].done = !this.todo[id].done;
+                    this.savePlan();
+                    setTimeout(_ => {
+                        this.flag = false;
+                    }, 500)
+                },
+                delPlan(id){
+                    console.log(id, 'id');
+                    this.todo.splice(id, 1);
+                    this.resortPlan();
+                    this.savePlan();
+                },
+                resortPlan(){
+                    this.todo.forEach((v, i) => {
+                        v.id = i;
+                    })
+                }
+            },
+            created(){
+                try{
+                    this.todo = JSON.parse(localStorage.todo);
+                }catch(error){
+                    this.todo = [];
+                }
+            }
+        })
+    </script>
+</body>
+</html>
