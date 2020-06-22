@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1 @click="flag = !flag">v-if</h1>
+        <hello-vue v-if="flag"></hello-vue>
+        <h1 @click="flag = !flag">v-show</h1>
+        <hello-vue v-show="flag"></hello-vue>
+        <h2>局部组件</h2>
+        <com-test></com-test>
+    </div>
+    <script>
+        // 全局注册一个子组件(先注册)
+        Vue.component('hello-vue', {
+            template: '<h1>{{txt}}</h1>',
+            data(){
+                return {
+                    txt: "child component"
+                }
+            },
+            beforeCreate(){
+                console.log('beforeCreate child')
+            },
+            created(){
+                console.log('created child')
+            },
+            beforeMount(){
+                console.log('beforeMount child')
+            },
+            mounted(){
+                console.log('mounted child')
+            },
+            beforeUpdate(){
+                console.log('beforeUpdate child')
+            },
+            updated(){
+                console.log('updated child')
+            },
+            beforeDestroy(){
+                console.log(this) // VueComponent
+                console.log(this.txt) // child component
+                console.log('beforeDestroy child')
+            },
+            destroyed(){
+                console.log(this) // VueComponent
+                console.log(this.msg) // undefined
+                console.log('destroied child')
+            }
+        });
+        // 局部注册
+        let com_test = {
+            template: '<h2>局部注册</h2>'
+        };
+        let app = new Vue({
+            el: "#app",
+            data: {
+                msg: "hello component",
+                flag: true
+            },
+            methods: {
+                eventTest(){
+                    console.log('event parent')
+                }
+            },
+            components:{
+                'com-test': com_test
+            },
+            // init events & lifecycle
+            beforeCreate(){
+                console.log(this) // Vue
+                console.log(this.msg) // undefined
+                console.log(this.eventTest) //undefined
+                console.log(document.querySelector('h1')); // undefined
+                console.log(this.$el)
+                console.log('beforeCreate parent')
+            },
+            // init injections & reactvity
+            created(){
+                console.log(this) // Vue
+                console.log(this.msg) // hello component
+                console.log(this.eventTest) // function(){}
+                console.log(document.querySelector('h1')); // <h1></h1>
+                console.log(this.$el)
+                console.log('created parent')
+            },
+            // compiler template into render function
+            beforeMount(){
+                console.log(this) // Vue
+                console.log(this.msg) // hello component
+                console.log(this.eventTest) // function(){}
+                console.log(document.querySelector('h1')); // <h1></h1>
+                console.log(this.$el)
+                console.log('beforeMount parent')
+            },
+            // 
+            mounted(){
+                console.log(this) // Vue 
+                console.log(this.msg) // hello component
+                console.log(this.eventTest) // function(){}
+                console.log(document.querySelector('h1')); // <h1></h1>
+                console.log(this.$el)
+                console.log('mounted parent')
+            },
+            beforeUpdate(){
+                console.log(this) // Vue
+                console.log(this.flag) // false
+                console.log(this.eventTest) // function(){}
+                console.log(document.querySelector('h1')); // <h1></h1>
+                console.log('beforeUpdate parent')
+            },
+            updated(){
+                console.log(this) // Vue
+                console.log(this.flag) // false
+                console.log(this.eventTest) //function(){}
+                console.log(document.querySelector('h1')); // <h1></h1>
+                console.log('updated parent')
+            }
+        });
+        
+    </script>
+</body>
+</html>
