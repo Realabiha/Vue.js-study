@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <span>{{test}}</span>
+        <test-v-model :value="test" @input="test = $event"></test-v-model>
+        <test-v-model v-model="test"></test-v-model>
+    </div>
+    <script>
+        // v-model input 实质vue响应式+input事件
+        // v-model 组件 实质vue响应式+vue组件prop传值+vue自定义事件系统
+        Vue.component('test-v-model', {
+            template:
+            `<input
+                :value="value"
+                @input="$emit('input', $event.target.value)"
+            >`,
+            props: ['value']
+        })
+        let app = new Vue({
+            el: "#app",
+            data: {
+                test: 'test'
+            }
+        })
+    </script>
+</body>
+</html>

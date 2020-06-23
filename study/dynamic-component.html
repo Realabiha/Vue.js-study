@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <ul>
+            <li v-for="item in tabs" :key="item" @click="tab = item">
+                {{item}}
+            </li>
+            <!-- keep-alive 缓存组件内部状态,组件不被销毁 -->
+            <keep-alive>
+                <component :is="tab"></component>
+            </keep-alive>
+        </ul>
+    </div>
+    <script>
+        // Vue.component('com-dynamic-1', {
+        //     template:`<h1>child-1</h1>`,
+        // });
+        // Vue.component('com-dynamic-2', {
+        //     template:`<h1>child-2</h1>`,
+        // });
+        const com1 = {
+            template: `<h1>com-1</h1>`,
+            name: 'com-dynamic-1'
+        }
+        const com2 = {
+            template: `<h2>com-2</h2>`,
+            name: 'com-dynamic-2'
+        }
+        let app = new Vue({
+            el: '#app',
+            data: {
+                tabs: ['com-dynamic-1', 'com-dynamic-2'],
+                tab: 'com-dynamic-1'
+            },
+            // 局部组件注册
+            components: {
+                'com-dynamic-1': com1,
+                'com-dynamic-2': com2
+            }
+        })
+    </script>
+</body>
+</html>

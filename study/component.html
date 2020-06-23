@@ -5,40 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        let store = new Vue();
+    </script>
 </head>
 <body>
     <div id="app">
-        <com-global></com-global>
-        <com-normal></com-normal>
+        <div>
+            <com-global :val="parentData" @child2parent="handleEmitEvent">
+                点我
+            </com-global>
+            <com-normal></com-normal>
+        </div>
     </div>
     <script>
+        // 组件可复用的vue实例
+        // 组件有且只有一个根元素
         Vue.component('com-global', {
-            template: '<h1>全局组件 {{msg}}</h1>',
+            // 全局组件name默认是标签 此处时com-global
+            // name: 'test',
+            template:
+            `<div>
+                <button @click="emitEvent">Click Me</button>
+                <slot></slot>
+            </div>
+            `,
             props: ['val'],
+            // props: {
+            //     val: {type: String, default: ""}
+            // },
             data(){
                 return {
-                    msg: ''
+                    msg: 'com-global',
+                    childData: 'global'
                 }
+            },
+            methods: {
+                emitEvent(){
+                    // this.$emit('child2parent', this.childData);
+
+                    store.$emit('eventbus', '来自eventbus的真挚问候')
+                }
+            },
+            created(){
+                // console.log(this)
+                // console.log(this.val);
+                // console.log(this.$parent.parentData)
+                // console.log(this.$attrs, this.$props)
+                // console.log(this.$root.parentData)
+
+                store.$on('eventbus_bros', data => {
+                    console.log(data, 'eventbus_bros');
+                })
+            },
+            destroyed(){
+                // 移除所有组件对eventbus事件监听
+                store.$off('eventbus');
             }
         });
-        let = com_normal ={
-            template: '<h2>局部组件 {{msg}}</h2>',
+        let com_normal = {
+            // 局部注册组件name默认是 undefined
+            name: 'test2',
+            template: '<h2 @click="handleClick">局部组件 {{msg}}</h2>',
             props: ['val'],
+            inject: ['test'],
             data(){
                 return {
-                    msg: ''
+                    msg: 'com-normal',
+                    childData: 'normal'
                 }
+            },
+            methods: {
+                handleClick(){
+                    store.$emit('eventbus_bros', '来自兄弟组件真挚的问候')
+                }
+            },
+            created(){
+                // console.log(this.$root.parentData);
+                // console.log(this.test);
+                // console.log(this.test, this.$root._provided.test = 'ceshi');
+                // console.log(this.test, this.$root._provided.test);
+            },
+            mounted(){
+
             }
         }
+        const $store = new Vue();
+        Object.defineProperty(Vue.prototype, '$bus', {
+            get(){
+                return $store
+            }
+        })
+        // const $bus = Symbol();
+        // Vue.prototype[$bus] = new Vue()
         let app = new Vue({
             el: "#app",
+            provide: {
+                test: 'hello'
+            },
+            data: {
+                parentData: 'parent'
+            },
             components: {
                 'com-normal': com_normal
+            },
+            methods:{
+                handleEmitEvent(data){
+                    // console.log(data);
+                }
+            },
+            created(){
+                // console.log(this._provided)
+                store.$on('eventbus', data => {
+                    console.log(data, 'eventbus');
+                })
+            },
+            mounted(){
+                // console.log(this.$children[0].childData)                
+
+                // console.log(this[$bus]);
             }
         })
 
         // 组件传值
-        // 简单传值 props/$emit/$root/$parent/$children/$attrs/$listenners/$refs
+        // 简单传值 props/$emit/$root/$parent/$children/$attrs/$listenners/$refs (注意生命周期dom是否渲染)
         // 复杂传值 vuex/eventbus/provide&inject
     </script>
 </body>
