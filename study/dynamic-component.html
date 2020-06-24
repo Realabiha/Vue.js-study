@@ -19,6 +19,11 @@
         </ul>
     </div>
     <script>
+        // 全局注册 第一个参数默认就是该组件名
+        // name属性 递归调用/方便调试
+        // this.$options.name(一个原型上的属性)
+
+
         // Vue.component('com-dynamic-1', {
         //     template:`<h1>child-1</h1>`,
         // });
@@ -31,7 +36,10 @@
         }
         const com2 = {
             template: `<h2>com-2</h2>`,
-            name: 'com-dynamic-2'
+            name: 'com-dynamic-2',
+            mounted(){
+                console.log(this)
+            }
         }
         let app = new Vue({
             el: '#app',
@@ -41,6 +49,7 @@
             },
             // 局部组件注册
             components: {
+                // 组件名：组件对象
                 'com-dynamic-1': com1,
                 'com-dynamic-2': com2
             }
