@@ -5,12 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>console.log(document)</script>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <slot-com>
+            <template #header>
+                HEADER
+            </template>
+            <!-- <template v-slot:default="obj">
+                MAIN
+                {{obj.scope}}
+            </template> -->
+
+            <!-- 解构重命名 -->
+            <!-- <template v-slot="{scope: child}">
+                MAIN
+                {{child}}
+            </template> -->
+
+            <template v-slot="{obj = {scope: 'test'}}">
+                MAIN
+                {{obj.scope}}
+            </template>
+            <template v-slot:footer>
+                FOOTER
+            </template>
+            <template>
+                DEFAULT
+            </template>
+        </slot-com>
+    </div>
     <script>
+        // 父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。
+
+        Vue.component('slot-com', {
+            template: `<div>
+                <header><slot name="header">header</slot></header>
+                <main><slot :scope="test"></slot></main>
+                <footer><slot name="footer">footer</slot></footer>
+            </div>`,
+            props: [],
+            data(){
+                return {
+                    child: 'child',
+                    test: undefined
+                }
+            }
+
+        })
         let app = new Vue({
-            el: '#app'
+            el: '#app',
+            data: {
+                parent: 'parent'
+            }
         })
     </script>
 </body>
