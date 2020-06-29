@@ -38,7 +38,11 @@
     </div>
     <script>
         // 父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。
-
+        // 作用域插槽的内部工作原理是将你的插槽内容包括在一个传入单个参数的函数里：
+        function test(obj){
+            // 插槽内容
+        }
+        
         Vue.component('slot-com', {
             template: `<div>
                 <header><slot name="header">header</slot></header>

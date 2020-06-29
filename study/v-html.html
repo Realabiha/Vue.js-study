@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<body>
+    <div id="app">
+        <div v-html='htmlstr'></div>
+        <div id="test">
+            文本节点
+            <span>{{htmlstr}}</span>
+        </div>
+        <!-- display隐藏 -->
+        <span style="display: none">css隐藏</span>
+        <select v-model="select" @change="handleSelect">
+            <option value ="volvo">Volvo</option>
+            <option value ="saab">Saab</option>
+            <option value="opel">Opel</option>
+            <option value="audi">Audi</option>
+        </select>
+    </div>
+    <script>
+        let vm = new Vue({
+            el: "#app",
+            data: {
+                htmlstr: '<h1>v-html</h1>',
+                select: ''
+            },
+            methods: {
+                handleSelect(e){
+                    console.log(e.target.value);
+                }
+            }
+        })
+        // 插值表达式 和 v-html
+        // innerText innerHTML textContent
+        // textContent 表示一个节点及其后代的文本内容。返回节点的nodeValue 如果有子节点则拼接所有nodeValue并返回 包括<script>和<style>但不包含注释节点(nodetype:8)
+        // innerText 返回节点及子节点的'渲染'内容(受CSS影响)
+        // outerText 获取值返回与innerText一致的内容，设置时会删除当前节点并替换为目标文本 (非标准属性)
+        // innerHTML 设置或获取HTML语法表示的元素的后代。 (</>/& => &lt;/&gt;/&amp)
+        // outerHTML 描述元素（包括其后代）的序列化HTML片段。它也可以设置为用从给定字符串解析的节点替换元素
+        
+        
+        // const app = document.querySelector('#app');
+        // 1.app.innerText;
+        // "v-html
+        // <h1>v-html</h1>"
+        // 2.app.outerText;
+        // "v-html
+        // <h1>v-html</h1>"
+        // 3.app.textContent;
+        // "v-html <h1>v-html</h1> css隐藏"
+        // 4.app.innerHTML;
+        // "<div><h1>v-html</h1></div> <span>&lt;h1&gt;v-html&lt;/h1&gt;</span> <span style="display: none;">css隐藏</span>"
+        // 5.app.outerHTML;
+        // "<div id="app"><div><h1>v-html</h1></div> <div id="test">
+        //         文本节点
+        //         <span>&lt;h1&gt;v-html&lt;/h1&gt;</span></div> <span style="display: none;">css隐藏</span></div>"
+
+        // 设置文本时建议使用textContent因为设置内容不会被解析成HTML (xss)
+    </script>
+    
+</body>
+</html>

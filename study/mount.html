@@ -10,21 +10,20 @@
     <div id="app">
         
     </div>
-    <div id="root">
-
-    </div>
     <script>
-        // Vue.prototype._init 执行
-        let app = new Vue({
-            el: '#app',
-            // template: `
-            //     <h1>hello template</h1>
-            // `,
-            render(h){
-              return h('div', {class: 'test'}, 'hello render')
-            }
+        let test = Vue.component('test-com', {
+            template:`<h1>hello com</h1>`
         })
 
+        // Vue.prototype._init 执行
+        new Vue({
+            el: '#app',
+            template: `
+                <h1>hello template</h1>
+            `,
+            render: h => h('div', {class: 'root'}, [h(test)])
+        })
+        // .$mount('#app')
         // vue挂载分为自动挂载和手动挂载
         // 挂载最终都是执行$amount方法，只不过el的值会作为该函数的默认参数
 
@@ -36,7 +35,7 @@
         // template的值会覆盖el的outerHtml
 
         // 独立构建渲染过程
-        // el.outerHTML -- template -(模板编译成AST)- render func -- vnode -- 
+        // el.outerHTML -- template -(模板编译成AST)- render func -- vnode -(新旧vnode对比)- dom -- reflow 
         // 运行时构建过程 没有模板编译过程采用render函数，此时el/template/mount都不会影响到页面渲染
 
         // render函数可接受三个参数 标签名string/属性值Object/子节点array
